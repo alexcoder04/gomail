@@ -17,7 +17,7 @@ https://github.com/alexcoder04/gomail/releases/latest.
 ```sh
 git clone https://github.com/alexcoder04/gomail
 cd gomail
-go build main.go
+make linux # or make windows
 ```
 
 ## How to use (important!)
@@ -29,7 +29,8 @@ executable is run in. Those are:
 ### `settings.txt`
 
 The host address can vary depending on your e-mail provider, most likely it's
-something like *mail.domain.tld* or *smtp.domain.tld*.
+something like *mail.domain.tld* or *smtp.domain.tld*. The port also is
+different for different e-mail providers.
 
 ```text
 youraddress@example.com
@@ -38,6 +39,10 @@ smtp.example.com
 ```
 
 ### `account.txt`
+
+The first line is your username. For my provider, it's the part of the address
+before the @-sign, but it may be the full address or something completely
+different for your e-mail provider.
 
 ```text
 youraddress@example.com
