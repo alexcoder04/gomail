@@ -7,17 +7,31 @@ import (
 	"log"
 	"net/smtp"
 	"os"
+
+	"gopkg.in/yaml.v3"
 )
 
 const (
-	SETTINGS_FILE   = "./settings.txt"
+	SETTINGS_FILE   = "./settings.yml"
 	MAIL_CONTENT    = "./mail.txt"
 	ACCOUNT_FILE    = "./account.txt"
 	RECIPIENTS_FILE = "./recipients.txt"
 )
 
+type Settings struct {
+	From    string `yaml:"From"`
+	Addr    string `yaml:"Addr"`
+	Host    string `yaml:"Host"`
+	Subject string `yaml:"Subject"`
+}
+
+type Account struct {
+	Username string `yaml:"Username"`
+	Password string `yaml:"Password"`
+}
+
 func ReadSettingsFromFile() (string, string, string, string) {
-	readFile, err := os.Open(SETTINGS_FILE)
+	data, err := ioutil.ReadFile(SETTINGS_FILE)
 	if err != nil {
 		if os.IsNotExist(err) {
 			fmt.Println("Settings file (" + SETTINGS_FILE + ") does not exist")
@@ -26,26 +40,18 @@ func ReadSettingsFromFile() (string, string, string, string) {
 		}
 		os.Exit(1)
 	}
-	fileScanner := bufio.NewScanner(readFile)
-	fileScanner.Split(bufio.ScanLines)
-	var fileTextLines []string
-
-	for fileScanner.Scan() {
-		fileTextLines = append(fileTextLines, fileScanner.Text())
+	settings := Settings{}
+	err = yaml.Unmarshal(data, &settings)
+	if err != nil {
+		fmt.Println("Your settings file doesn't look right")
+		os.Exit(1)
 	}
 
-	readFile.Close()
-
-	from := fileTextLines[0]
-	addr := fileTextLines[1]
-	host := fileTextLines[2]
-	subj := fileTextLines[3]
-
-	return from, addr, host, subj
+	return settings.From, settings.Addr, settings.Host, settings.Subject
 }
 
 func ReadAccountFromFile() (string, string) {
-	readFile, err := os.Open(ACCOUNT_FILE)
+	data, err := ioutil.ReadFile(ACCOUNT_FILE)
 	if err != nil {
 		if os.IsNotExist(err) {
 			fmt.Println("Account file (" + ACCOUNT_FILE + ") does not exist")
@@ -54,20 +60,14 @@ func ReadAccountFromFile() (string, string) {
 		}
 		os.Exit(1)
 	}
-	fileScanner := bufio.NewScanner(readFile)
-	fileScanner.Split(bufio.ScanLines)
-	var fileTextLines []string
-
-	for fileScanner.Scan() {
-		fileTextLines = append(fileTextLines, fileScanner.Text())
+	account := Account{}
+	err = yaml.Unmarshal(data, &account)
+	if err != nil {
+		fmt.Println("Your settings file doesn't look right")
+		os.Exit(1)
 	}
 
-	readFile.Close()
-
-	user := fileTextLines[0]
-	passwd := fileTextLines[1]
-
-	return user, passwd
+	return account.Username, account.Password
 }
 
 func ReadRecipientsAddressesFromFile() []string {
