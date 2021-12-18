@@ -34,20 +34,15 @@ The host address can vary depending on your e-mail provider, most likely it's
 something like *mail.domain.tld* or *smtp.domain.tld*. The port also is
 different for different e-mail providers.
 
+For my provider, the username is the part of the address before the @-sign,
+but it may be the full address or something completely different for your
+e-mail provider.
+
 ```yml
 From: youraddress@example.com
 Addr: smtp.example.com:587
 Host: smtp.example.com
 Subject: Hello friends!
-```
-
-### `account.txt`
-
-The first line is your username. For my provider, it's the part of the address
-before the @-sign, but it may be the full address or something completely
-different for your e-mail provider.
-
-```yml
 Usename: youraddress@example.com
 Password: YourSecureP4ssw0rd
 ```

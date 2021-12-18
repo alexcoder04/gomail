@@ -12,25 +12,21 @@ import (
 )
 
 const (
-	SETTINGS_FILE   = "./settings.yml"
 	MAIL_CONTENT    = "./mail.txt"
-	ACCOUNT_FILE    = "./account.txt"
 	RECIPIENTS_FILE = "./recipients.txt"
+	SETTINGS_FILE   = "./settings.yml"
 )
 
 type Settings struct {
-	From    string `yaml:"From"`
-	Addr    string `yaml:"Addr"`
-	Host    string `yaml:"Host"`
-	Subject string `yaml:"Subject"`
-}
-
-type Account struct {
-	Username string `yaml:"Username"`
+	Addr     string `yaml:"Addr"`
+	From     string `yaml:"From"`
+	Host     string `yaml:"Host"`
 	Password string `yaml:"Password"`
+	Subject  string `yaml:"Subject"`
+	Username string `yaml:"Username"`
 }
 
-func ReadSettingsFromFile() (string, string, string, string) {
+func ReadSettingsFromFile() Settings {
 	data, err := ioutil.ReadFile(SETTINGS_FILE)
 	if err != nil {
 		if os.IsNotExist(err) {
@@ -47,27 +43,7 @@ func ReadSettingsFromFile() (string, string, string, string) {
 		os.Exit(1)
 	}
 
-	return settings.From, settings.Addr, settings.Host, settings.Subject
-}
-
-func ReadAccountFromFile() (string, string) {
-	data, err := ioutil.ReadFile(ACCOUNT_FILE)
-	if err != nil {
-		if os.IsNotExist(err) {
-			fmt.Println("Account file (" + ACCOUNT_FILE + ") does not exist")
-		} else {
-			fmt.Println("Cannot open settings file")
-		}
-		os.Exit(1)
-	}
-	account := Account{}
-	err = yaml.Unmarshal(data, &account)
-	if err != nil {
-		fmt.Println("Your settings file doesn't look right")
-		os.Exit(1)
-	}
-
-	return account.Username, account.Password
+	return settings
 }
 
 func ReadRecipientsAddressesFromFile() []string {
@@ -104,16 +80,15 @@ func BuildMessage(from string, to string, subject string, body []byte) []byte {
 }
 
 func main() {
-	from, addr, host, subject := ReadSettingsFromFile()
-	user, password := ReadAccountFromFile()
+	settings := ReadSettingsFromFile()
 	recipients := ReadRecipientsAddressesFromFile()
 
 	mailContent, _ := ioutil.ReadFile(MAIL_CONTENT)
 
-	auth := smtp.PlainAuth("", user, password, host)
+	auth := smtp.PlainAuth("", settings.Username, settings.Password, settings.Host)
 	for _, to := range recipients {
-		msg := BuildMessage(from, to, subject, mailContent)
-		err := smtp.SendMail(addr, auth, from, []string{to}, msg)
+		msg := BuildMessage(settings.From, to, settings.Subject, mailContent)
+		err := smtp.SendMail(settings.Addr, auth, settings.From, []string{to}, msg)
 		if err != nil {
 			log.Fatal(err.Error())
 		} else {
