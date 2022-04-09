@@ -43,7 +43,7 @@ From: youraddress@example.com
 Addr: smtp.example.com:587
 Host: smtp.example.com
 Subject: Hello friends!
-Usename: youraddress@example.com
+Username: youraddress@example.com
 Password: YourSecureP4ssw0rd
 ```
 

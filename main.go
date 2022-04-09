@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"flag"
 	"fmt"
 	"io/ioutil"
 	"log"
@@ -11,10 +12,10 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
-const (
-	MAIL_CONTENT    = "./mail.txt"
-	RECIPIENTS_FILE = "./recipients.txt"
-	SETTINGS_FILE   = "./settings.yml"
+var (
+	settingsFile   = flag.String("s", "settings.yml", "settings file")
+	recipientsFile = flag.String("r", "recipients.txt", "recipients file")
+	mailBodyFile   = flag.String("b", "mail.txt", "mail body file")
 )
 
 type Settings struct {
@@ -26,11 +27,12 @@ type Settings struct {
 	Username string `yaml:"Username"`
 }
 
-func ReadSettingsFromFile() Settings {
-	data, err := ioutil.ReadFile(SETTINGS_FILE)
+func ReadSettingsFromFile(file string) Settings {
+	fmt.Println("Reading settings from " + file + "...")
+	data, err := ioutil.ReadFile(file)
 	if err != nil {
 		if os.IsNotExist(err) {
-			fmt.Println("Settings file (" + SETTINGS_FILE + ") does not exist")
+			fmt.Println("Settings file (" + file + ") does not exist")
 		} else {
 			fmt.Println("Cannot open settings file")
 		}
@@ -42,15 +44,15 @@ func ReadSettingsFromFile() Settings {
 		fmt.Println("Your settings file doesn't look right")
 		os.Exit(1)
 	}
-
 	return settings
 }
 
-func ReadRecipientsAddressesFromFile() []string {
-	readFile, err := os.Open(RECIPIENTS_FILE)
+func ReadRecipientsAddressesFromFile(file string) []string {
+	fmt.Println("Reading recipients from " + file + "...")
+	readFile, err := os.Open(file)
 	if err != nil {
 		if os.IsNotExist(err) {
-			fmt.Println("Settings file (" + RECIPIENTS_FILE + ") does not exist")
+			fmt.Println("Recipients file (" + file + ") does not exist")
 		} else {
 			fmt.Println("Cannot open settings file")
 		}
@@ -70,21 +72,28 @@ func ReadRecipientsAddressesFromFile() []string {
 }
 
 func BuildMessage(from string, to string, subject string, body []byte) []byte {
-	msg := []byte("MIME-version: 1.0;\nContent-Type: text/plain; charset=\"UTF-8\";\r\n")
-	msg = append(msg, []byte("From: "+from+"\r\n")...)
-	msg = append(msg, []byte("To: "+to+"\r\n")...)
-	msg = append(msg, []byte("Subject: "+subject+"\r\n\r\n")...)
-	msg = append(msg, body...)
-	msg = append(msg, []byte("\r\n\r\n")...)
+	msg := append([]byte("MIME-version: 1.0;\r\n"+
+		"Content-Type: text/plain; charset=utf-8;\r\n"+
+		"From: "+from+"\r\n"+
+		"To: "+to+"\r\n"+
+		"Subject: "+subject+"\r\n\r\n"), body...)
 	return msg
 }
 
 func main() {
-	settings := ReadSettingsFromFile()
-	recipients := ReadRecipientsAddressesFromFile()
+	flag.Parse()
 
-	mailContent, _ := ioutil.ReadFile(MAIL_CONTENT)
+	settings := ReadSettingsFromFile(*settingsFile)
+	recipients := ReadRecipientsAddressesFromFile(*recipientsFile)
 
+	fmt.Println("Reading mail content from " + *mailBodyFile + "...")
+	mailContent, err := ioutil.ReadFile(*mailBodyFile)
+	if err != nil {
+		fmt.Println("Error reading " + *mailBodyFile)
+		os.Exit(1)
+	}
+
+	fmt.Println("Performing login on " + settings.Host + "...")
 	auth := smtp.PlainAuth("", settings.Username, settings.Password, settings.Host)
 	for _, to := range recipients {
 		msg := BuildMessage(settings.From, to, settings.Subject, mailContent)

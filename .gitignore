@@ -1,3 +1,4 @@
 *.txt
+settings.yml
 *.exe
 *-x86_64
