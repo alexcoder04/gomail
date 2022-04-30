@@ -27,21 +27,19 @@ make linux # or `make windows`
 
 ## How to use (important!)
 
-This program is pretty much in alpha status, currently it's configured through
-configuration files, which must be located in the same directory as the
-executable is run in. Those are:
+The program is configured with the following files:
 
-### `settings.yml`
+### `<USER_CONFIG_DIR>/gomail/settings.yml`
 
-You can use another file by passing the `-s` flag (e. g. `gomail -s mysettings.txt`)
+You can use another file by passing the `-s` flag (e. g. `gomail -s mysettings.yml`)
 
 The host address can vary depending on your e-mail provider, most likely it's
-something like *mail.domain.tld* or *smtp.domain.tld*. The port is also
+something like *mail.example.com* or *smtp.example.com*. The port is also
 different for different e-mail providers.
 
-For my provider, the username is the part of the address before the @-sign,
-but it may be the full address (e. g. on Gmail) or something completely
-different for your e-mail provider.
+For the username, it is the part of the mail address before the @-sign for my
+provider, but it may be the full address (e. g. on Gmail) or something
+completely different for your e-mail provider.
 
 ```yml
 From: youraddress@example.com
@@ -52,7 +50,7 @@ Password: YourSecureP4ssw0rd
 Subject: Hello friends!
 ```
 
-### `recipients.txt`
+### `<USER_CONFIG_DIR>/gomail/recipients.txt`
 
 You can use another file by passing the `-r` flag (e. g. `gomail -r friendslist.txt`)
 
@@ -61,7 +59,7 @@ myfriend1@example.com
 myfriend2@example.com
 ```
 
-### `mail.txt`
+### `./mail.txt`
 
 You can use another file by passing the `-b` flag (e. g. `gomail -b hello.txt`)
 
