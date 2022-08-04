@@ -1,29 +1,30 @@
 package main
 
 import (
-	"bufio"
 	"io/ioutil"
 	"log"
 	"os"
 	"path"
+	"strings"
 
+	"github.com/alexcoder04/friendly"
 	"gopkg.in/yaml.v3"
 )
 
-func getConfigDir() string {
-	dir, err := os.UserConfigDir()
-	if err != nil {
-		log.Fatalln("Cannot determine user's home directory")
-	}
-	return dir
-}
-
 func GetSettingsFile() string {
-	return path.Join(getConfigDir(), "gomail", "settings.yml")
+	confDir, err := friendly.GetConfigDir(PROGRAM_NAME)
+	if err != nil {
+		log.Fatalln("Cannot get config directory")
+	}
+	return path.Join(confDir, "settings.yml")
 }
 
 func GetRecepientsFile() string {
-	return path.Join(getConfigDir(), "gomail", "recipients.txt")
+	confDir, err := friendly.GetConfigDir(PROGRAM_NAME)
+	if err != nil {
+		log.Fatalln("Cannot get config directory")
+	}
+	return path.Join(confDir, "recipients.txt")
 }
 
 func ReadSettingsFromFile(file string) Settings {
@@ -44,23 +45,16 @@ func ReadSettingsFromFile(file string) Settings {
 }
 
 func ReadRecipientsAddressesFromFile(file string) []string {
-	log.Printf("Loading recipients from %s...\n", file)
-	readFile, err := os.Open(file)
+	lines, err := friendly.ReadLines(file)
 	if err != nil {
 		if os.IsNotExist(err) {
-			log.Fatalf("Recipients file (%s) does not exist", file)
+			log.Fatalf("Recipients file (%s) does not exist\n", file)
 		}
-		log.Fatalln("Cannot open settings file")
+		log.Fatalln("Cannot read recipients")
 	}
-	fileScanner := bufio.NewScanner(readFile)
-	fileScanner.Split(bufio.ScanLines)
-	var fileTextLines []string
-
-	for fileScanner.Scan() {
-		fileTextLines = append(fileTextLines, fileScanner.Text())
+	recipients := make([]string, 0)
+	for _, l := range lines {
+		recipients = append(recipients, strings.TrimSpace(l))
 	}
-
-	readFile.Close()
-
-	return fileTextLines
+	return recipients
 }

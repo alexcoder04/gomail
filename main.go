@@ -7,6 +7,8 @@ import (
 	"net/smtp"
 )
 
+const PROGRAM_NAME = "gomail"
+
 var (
 	settingsFile   = flag.String("s", GetSettingsFile(), "settings file")
 	recipientsFile = flag.String("r", GetRecepientsFile(), "recipients file")
