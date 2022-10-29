@@ -46,6 +46,7 @@ func main() {
 	}
 
 	log.Printf("Performing login on %s...\n", settings.Host)
+	// PlainAuth is using TLS if not on localhost
 	auth := smtp.PlainAuth("", settings.Username, settings.Password, settings.Host)
 	for _, to := range recipients {
 		msg := BuildMessage(settings.From, to, settings.Subject, mailContent)

@@ -7,12 +7,12 @@ import (
 	"path"
 	"strings"
 
-	"github.com/alexcoder04/friendly"
+	"github.com/alexcoder04/friendly/v2/ffiles"
 	"gopkg.in/yaml.v3"
 )
 
 func GetSettingsFile() string {
-	confDir, err := friendly.GetConfigDir(PROGRAM_NAME)
+	confDir, err := ffiles.GetConfigDirFor(PROGRAM_NAME)
 	if err != nil {
 		log.Fatalln("Cannot get config directory")
 	}
@@ -20,7 +20,7 @@ func GetSettingsFile() string {
 }
 
 func GetRecepientsFile() string {
-	confDir, err := friendly.GetConfigDir(PROGRAM_NAME)
+	confDir, err := ffiles.GetConfigDirFor(PROGRAM_NAME)
 	if err != nil {
 		log.Fatalln("Cannot get config directory")
 	}
@@ -45,7 +45,7 @@ func ReadSettingsFromFile(file string) Settings {
 }
 
 func ReadRecipientsAddressesFromFile(file string) []string {
-	lines, err := friendly.ReadLines(file)
+	lines, err := ffiles.ReadLines(file)
 	if err != nil {
 		if os.IsNotExist(err) {
 			log.Fatalf("Recipients file (%s) does not exist\n", file)
