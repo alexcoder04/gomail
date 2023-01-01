@@ -3,7 +3,7 @@ module github.com/alexcoder04/gomail
 go 1.17
 
 require (
-	github.com/alexcoder04/friendly/v2 v2.0.1
+	github.com/alexcoder04/friendly/v2 v2.1.1
 	gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b
 )
 
